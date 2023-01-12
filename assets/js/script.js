@@ -49,6 +49,7 @@ function get5DayForecast(lat, lon) {
         })
         .then(function (data) {
             display5DayForecast(data);
+            console.log(data);
         })
 }
 
@@ -111,7 +112,7 @@ function displayCurrentWeather(data) {
     var p = document.createElement("p");
     var p2 = document.createElement("p");
     var p3 = document.createElement("p");
-    h5.innerHTML = dayjs().format("MM-D-YYYY") + statusIcon;
+    h5.innerHTML = data.name + " " + dayjs().format("MM-D-YYYY") + statusIcon;
     p.innerHTML = "Temp: " + temp + "°F";
     p2.innerHTML = "Wind Speed: " + wind + " MPH";
     p3.innerHTML = "Humidity: " + humidity + " %";
@@ -142,7 +143,7 @@ function display5DayForecast(data) {
         var p = document.createElement("p");
         var p2 = document.createElement("p");
         var p3 = document.createElement("p");
-        h5.innerHTML = dayjs().add(count + 1, "d").format("MM-D-YYYY") + statusIcon;
+        h5.innerHTML = data.city.name + " " + dayjs().add(count + 1, "d").format("MM-D-YYYY") + statusIcon;
         p.innerHTML = "Temp: " + data.list[i].main.temp + "°F";
         p2.innerHTML = "Wind Speed: " + data.list[i].wind.speed + " MPH";
         p3.innerHTML = "Humidity: " + data.list[i].main.humidity + " %";
