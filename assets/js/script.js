@@ -5,14 +5,19 @@ var forecastCard1 = document.querySelector("#forecast1");
 var forecastCard2 = document.querySelector("#forecast2");
 var forecastCard3 = document.querySelector("#forecast3");
 var forecastCard4 = document.querySelector("#forecast4");
-var forecastCard5 = document.querySelector("#forecast5")
+var forecastCard5 = document.querySelector("#forecast5");
+var weatherBtns = document.querySelector("#weatherBtn");
 var apiKey = "72a59ebfae3893a4cb8b37a32f9526af";
+var cities = [];
 
 
 searchBtnEl.addEventListener("click", function(event) {
     event.preventDefault();
 
-    getCity(cityEl.value);    
+    clearText();
+    getCity(cityEl.value);
+    displayWeatherBtns(cityEl.value);
+    cityEl.innerHTML = "";    
 });
 
 
@@ -32,7 +37,7 @@ function getCity(city) {
 
 function getCurrentWeather(lat, lon) {
     console.log(lat, lon);
-    var apiUrl = "http://api.openweathermap.org/data/2.5/weather?lat=" + lat + "&lon=" + lon + "&appid=" + apiKey;
+    var apiUrl = "http://api.openweathermap.org/data/2.5/weather?units=imperial&lat=" + lat + "&lon=" + lon + "&appid=" + apiKey;
 
     fetch(apiUrl)
         .then(function (response) {
@@ -50,7 +55,7 @@ function getCurrentWeather(lat, lon) {
 }
 
 function get5DayForecast(lat, lon) {
-    var apiUrl = "http://api.openweathermap.org/data/2.5/forecast?lat=" + lat + "&lon=" + lon + "&appid=" + apiKey;
+    var apiUrl = "http://api.openweathermap.org/data/2.5/forecast?units=imperial&lat=" + lat + "&lon=" + lon + "&appid=" + apiKey;
 
     fetch(apiUrl)
         .then(function (response) {
@@ -62,16 +67,63 @@ function get5DayForecast(lat, lon) {
         })
 }
 
+function displayWeatherBtns(city) {
+    var btn = document.createElement("btn");
+    btn.textContent = city;
+    btn.setAttribute("class", "btn btn-primary");
+    btn.setAttribute("id", city);
+    cities.push(city);
+    console.log(cities);
+    weatherBtns.append(btn);
+
+    // localStorage.setItem("cities", JSON.stringify(cities));
+}
+
+function displayStoredBtns() {
+    var storedCities = JSON.parse(localStorage.getItem("cities"));
+    for (var i = 0; i < storedCities.length; i++) {
+        var btn = document.createElement("btn");
+        btn.textContent = city;
+        btn.setAttribute("class", "btn btn-primary");
+        btn.setAttribute("id", city);
+    }
+}
+
+function clearText() {
+    weatherCard.innerHTML = "";
+    forecastCard1.innerHTML = "";
+    forecastCard2.innerHTML = "";
+    forecastCard3.innerHTML = "";
+    forecastCard4.innerHTML = "";
+    forecastCard5.innerHTML = "";
+}
+
 function displayCurrentWeather(data) {
     console.log(data.weather[0].main);
+    var status = data.weather[0].main;
+    var temp = data.main.temp;
+    var wind = data.wind.speed;
+    var humidity = data.main.humidity;
+    if (status === "Clouds") {
+        var statusIcon = "☁";
+    }
+    else if (status === "Clear") {
+        var statusIcon = "☀";
+    }
+    else if (status === "Rain") {
+        var statusIcon = "🌧";
+    }
+    else if (status === "Snow") {
+        var statusIcon = "🌨";
+    }
     var h5 = document.createElement("h5");
     var p = document.createElement("p");
     var p2 = document.createElement("p");
     var p3 = document.createElement("p");
-    h5.innerHTML = data.dt_txt;
-    p.innerHTML = "Temp: " + data.main.temp + "°F";
-    p2.innerHTML = "Wind Speed: " + data.wind.speed + " MPH";
-    p3.innerHTML = "Humidity: " + data.main.humidity + " %";
+    h5.innerHTML = data.dt_txt + statusIcon;
+    p.innerHTML = "Temp: " + temp + "°F";
+    p2.innerHTML = "Wind Speed: " + wind + " MPH";
+    p3.innerHTML = "Humidity: " + humidity + " %";
     weatherCard.append(h5);
     weatherCard.append(p);
     weatherCard.append(p2);
@@ -79,14 +131,26 @@ function displayCurrentWeather(data) {
 }
 
 function display5DayForecast(data) {
-    console.log("hello");
     var count = 0;
     for (var i = 0; i < data.list.length; i += 8) {
+        var status = data.list[i].weather[0].main;
+        if (status === "Clouds") {
+            var statusIcon = "☁";
+        }
+        else if (status === "Clear") {
+            var statusIcon = "☀";
+        }
+        else if (status === "Rain") {
+            var statusIcon = "🌧";
+        }
+        else if (status === "Snow") {
+            var statusIcon = "🌨";
+        }
         var h5 = document.createElement("h5");
         var p = document.createElement("p");
         var p2 = document.createElement("p");
         var p3 = document.createElement("p");
-        h5.innerHTML = data.list[i].dt_txt;
+        h5.innerHTML = data.list[i].dt_txt + statusIcon;
         p.innerHTML = "Temp: " + data.list[i].main.temp + "°F";
         p2.innerHTML = "Wind Speed: " + data.list[i].wind.speed + " MPH";
         p3.innerHTML = "Humidity: " + data.list[i].main.humidity + " %";
