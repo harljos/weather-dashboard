@@ -56,7 +56,7 @@ function get5DayForecast(lat, lon) {
 function displayWeatherBtns(city) {
     var btn = document.createElement("btn");
     btn.textContent = city;
-    btn.setAttribute("class", "btn btn-primary");
+    btn.setAttribute("class", "btn btn-primary mb-5 me-3");
     btn.setAttribute("id", city);
     cities.push(city);
     console.log(cities);
@@ -72,7 +72,7 @@ function displayStoredBtns() {
     for (var i = 0; i < storedCities.length; i++) {
         var btn = document.createElement("btn");
         btn.textContent = cities[i];
-        btn.setAttribute("class", "btn btn-primary");
+        btn.setAttribute("class", "btn btn-primary mb-5 me-3");
         btn.setAttribute("id", cities[i]);
         weatherBtns.append(btn);
     }
