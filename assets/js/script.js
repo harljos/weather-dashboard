@@ -10,17 +10,7 @@ var weatherBtns = document.querySelector("#weatherBtn");
 var apiKey = "72a59ebfae3893a4cb8b37a32f9526af";
 var cities = [];
 
-
-searchBtnEl.addEventListener("click", function(event) {
-    event.preventDefault();
-
-    clearText();
-    getCity(cityEl.value);
-    displayWeatherBtns(cityEl.value);
-    cityEl.innerHTML = "";    
-});
-
-
+// gets the lat and lon to locate a city
 function getCity(city) {
     var apiUrl = "http://api.openweathermap.org/geo/1.0/direct?q=" + city + "&appid=" + apiKey;
 
@@ -35,6 +25,7 @@ function getCity(city) {
         });
 }
 
+// sorts through the api to get the current weather
 function getCurrentWeather(lat, lon) {
     console.log(lat, lon);
     var apiUrl = "http://api.openweathermap.org/data/2.5/weather?units=imperial&lat=" + lat + "&lon=" + lon + "&appid=" + apiKey;
@@ -45,15 +36,10 @@ function getCurrentWeather(lat, lon) {
         })
         .then(function (data) {
             displayCurrentWeather(data);
-            console.log(data);
-            // console.log(data.list[0].weather[0].main);
-            // console.log(data.list[0].main.temp);
-            // console.log(data.list[0].wind.speed);
-            // console.log(data.list[0].dt_txt);
-            // console.log(data.list[0].main.humidity);
         });
 }
 
+// sorts through the api to get the weather for the next five days
 function get5DayForecast(lat, lon) {
     var apiUrl = "http://api.openweathermap.org/data/2.5/forecast?units=imperial&lat=" + lat + "&lon=" + lon + "&appid=" + apiKey;
 
@@ -62,11 +48,11 @@ function get5DayForecast(lat, lon) {
             return response.json();
         })
         .then(function (data) {
-            console.log(data);
             display5DayForecast(data);
         })
 }
 
+// displays a button of the city that the user entered and stores the cities in local storage
 function displayWeatherBtns(city) {
     var btn = document.createElement("btn");
     btn.textContent = city;
@@ -76,19 +62,23 @@ function displayWeatherBtns(city) {
     console.log(cities);
     weatherBtns.append(btn);
 
-    // localStorage.setItem("cities", JSON.stringify(cities));
+    localStorage.setItem("cities", JSON.stringify(cities));
 }
 
+// puts the buttons from the cities stored in local storage
 function displayStoredBtns() {
     var storedCities = JSON.parse(localStorage.getItem("cities"));
+    cities = storedCities;
     for (var i = 0; i < storedCities.length; i++) {
         var btn = document.createElement("btn");
-        btn.textContent = city;
+        btn.textContent = cities[i];
         btn.setAttribute("class", "btn btn-primary");
-        btn.setAttribute("id", city);
+        btn.setAttribute("id", cities[i]);
+        weatherBtns.append(btn);
     }
 }
 
+// clears text of cards
 function clearText() {
     weatherCard.innerHTML = "";
     forecastCard1.innerHTML = "";
@@ -98,6 +88,7 @@ function clearText() {
     forecastCard5.innerHTML = "";
 }
 
+// displays the current weather on the main card
 function displayCurrentWeather(data) {
     console.log(data.weather[0].main);
     var status = data.weather[0].main;
@@ -120,7 +111,7 @@ function displayCurrentWeather(data) {
     var p = document.createElement("p");
     var p2 = document.createElement("p");
     var p3 = document.createElement("p");
-    h5.innerHTML = data.dt_txt + statusIcon;
+    h5.innerHTML = dayjs().format("MM-D-YYYY") + statusIcon;
     p.innerHTML = "Temp: " + temp + "°F";
     p2.innerHTML = "Wind Speed: " + wind + " MPH";
     p3.innerHTML = "Humidity: " + humidity + " %";
@@ -130,6 +121,7 @@ function displayCurrentWeather(data) {
     weatherCard.append(p3);
 }
 
+// displays the weather of the next five days on small cards
 function display5DayForecast(data) {
     var count = 0;
     for (var i = 0; i < data.list.length; i += 8) {
@@ -150,7 +142,7 @@ function display5DayForecast(data) {
         var p = document.createElement("p");
         var p2 = document.createElement("p");
         var p3 = document.createElement("p");
-        h5.innerHTML = data.list[i].dt_txt + statusIcon;
+        h5.innerHTML = dayjs().add(count + 1, "d").format("MM-D-YYYY") + statusIcon;
         p.innerHTML = "Temp: " + data.list[i].main.temp + "°F";
         p2.innerHTML = "Wind Speed: " + data.list[i].wind.speed + " MPH";
         p3.innerHTML = "Humidity: " + data.list[i].main.humidity + " %";
@@ -187,3 +179,22 @@ function display5DayForecast(data) {
         count++;
     }
 }
+
+// to display the buttons when the page has realoaded
+displayStoredBtns();
+
+// when the user clicks on the button it will store the city and display the forecast
+searchBtnEl.addEventListener("click", function() {
+    clearText();
+    getCity(cityEl.value);
+    displayWeatherBtns(cityEl.value);
+    cityEl.innerHTML = "";    
+});
+
+// when the user clicks on a button in the weatherBtn div it will display the forecast for the given city
+weatherBtns.addEventListener("click", function(event) {
+    city =  event.target.getAttribute("id");
+    clearText();
+    getCity(city);
+});
+
