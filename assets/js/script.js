@@ -12,6 +12,10 @@ var cities = [];
 
 // gets the lat and lon to locate a city
 function getCity(city) {
+    if (city === "") {
+        console.log("hi");
+        return false;
+    }
     var apiUrl = "http://api.openweathermap.org/geo/1.0/direct?q=" + city + "&appid=" + apiKey;
 
     fetch(apiUrl)
@@ -70,13 +74,19 @@ function displayWeatherBtns(city) {
 function displayStoredBtns() {
     var storedCities = JSON.parse(localStorage.getItem("cities"));
     cities = storedCities;
-    for (var i = 0; i < storedCities.length; i++) {
-        var btn = document.createElement("btn");
-        btn.textContent = cities[i];
-        btn.setAttribute("class", "btn btn-primary mb-5 me-3");
-        btn.setAttribute("id", cities[i]);
-        weatherBtns.append(btn);
+    if (cities != null) {
+        for (var i = 0; i < cities.length; i++) {
+            var btn = document.createElement("btn");
+            btn.textContent = cities[i];
+            btn.setAttribute("class", "btn btn-primary mb-5 me-3");
+            btn.setAttribute("id", cities[i]);
+            weatherBtns.append(btn);
+        }
     }
+    else {
+        cities = [];
+    }
+    
 }
 
 // clears text of cards
@@ -185,11 +195,14 @@ function display5DayForecast(data) {
 displayStoredBtns();
 
 // when the user clicks on the button it will store the city and display the forecast
-searchBtnEl.addEventListener("click", function() {
+searchBtnEl.addEventListener("click", function(event) {
+    event.preventDefault();
     clearText();
-    getCity(cityEl.value);
-    displayWeatherBtns(cityEl.value);
-    cityEl.innerHTML = "";    
+    cityEl.innerHTML = "";
+    var empty = getCity(cityEl.value);
+    if (!empty) {
+        displayWeatherBtns(cityEl.value);  
+    }   
 });
 
 // when the user clicks on a button in the weatherBtn div it will display the forecast for the given city
